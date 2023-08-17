@@ -36,19 +36,19 @@ class TicketController extends Controller
             $data = $request->all();
             $str = $data['seat_no'];
             $row = substr($str,1);
-            $col_name = $str[0];
+            $col_name = strtoupper($str[0]);
             
             $query = Ticket::where('id',$row)->first()->toArray();
             if($query && $query != null){
                 if($query[$col_name]){
                     // return 'already_booked';
                     $suggested_tickets = $this->getSuggested_tickets($data);
-                    return $suggested_tickets;
+                    return response()->json(['response' => ['code' => '200', 'message' => 'Requested tickets are not available, Here are some suggested seats.','seats'=>$suggested_tickets]]);
                 }else{
                     // check adjacent seats available or not
                     if(($column_arr[$col_name] - ($data['ticket_count']-1) < 0) || $column_arr[$col_name] + ($data['ticket_count']-1) > 20){
                         $suggested_tickets = $this->getSuggested_tickets($data);
-                        return $suggested_tickets;
+                        return response()->json(['response' => ['code' => '200', 'message' => 'Requested tickets are not available, Here are some suggested seats.','seats'=>$suggested_tickets]]);
                     }
                     // checking for left adjacent seats
                     $left_count = 0;
@@ -61,7 +61,7 @@ class TicketController extends Controller
                         }
                     }
                     if($left_count == $data['ticket_count'] - 1){
-                        return $temp_seat_no;
+                        return response()->json(['response' => ['code' => '200', 'message' => 'Records fetched successfully.','seats'=>$temp_seat_no]]);
                     }
 
                     // checking for right adjacent seats
@@ -75,24 +75,25 @@ class TicketController extends Controller
                         }
                     }
                     if($right_count == $data['ticket_count'] - 1){
-                        return $temp_seat_no;
+                        return response()->json(['response' => ['code' => '200', 'message' => 'Records fetched successfully.','seats'=>$temp_seat_no]]);
                     }
 
                     // checking for left right adjacent seats done, if still no seats found then system will check through all the rows
                     $suggested_tickets = $this->getSuggested_tickets($data);
-                    return $suggested_tickets;
+                    return response()->json(['response' => ['code' => '200', 'message' => 'Requested tickets are not available, Here are some suggested seats.','seats'=>$suggested_tickets]]);
                 }
             }
             else{
                 $suggested_tickets = $this->getSuggested_tickets($data);
-                return $suggested_tickets;
+                return response()->json(['response' => ['code' => '200', 'message' => 'Requested tickets are not available, Here are some suggested seats.','seats'=>$suggested_tickets]]);
             }
-            return $query;
+            return response()->json(['response' => ['code' => '400', 'message' => 'Unexpected case.']]);
         }catch(\Exception $e){
             Log::error(
                 'Internal server error',
                 ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]
             );
+            return response()->json(['response' => ['code' => '400', 'message' => 'Unable to fetch record.']]);
         }
     }
     public function getSuggested_tickets($data){
@@ -130,6 +131,7 @@ class TicketController extends Controller
                 'Internal server error',
                 ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]
             );
+            return false;
         }
     }
 }
