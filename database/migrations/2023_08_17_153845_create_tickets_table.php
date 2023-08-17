@@ -35,7 +35,6 @@ class CreateTicketsTable extends Migration
             $table->boolean('R')->default(false);
             $table->boolean('S')->default(false);
             $table->boolean('T')->default(false);
-            $table->timestamps();
         });
     }
 
