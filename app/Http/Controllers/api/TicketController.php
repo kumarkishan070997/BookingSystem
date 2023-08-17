@@ -11,6 +11,7 @@ class TicketController extends Controller
 {
     public function bookTicket(Request $request){
         try{
+            // Defining key value pairs for logical reason
             $column_arr = [
                 'A'=>"1",
                 'B'=>"2",
@@ -37,16 +38,16 @@ class TicketController extends Controller
             $str = $data['seat_no'];
             $row = substr($str,1);
             $col_name = strtoupper($str[0]);
-            
+            // checking requested row exist in database or not
             $query = Ticket::where('id',$row)->first()->toArray();
             if($query && $query != null){
                 if($query[$col_name]){
-                    // return 'already_booked';
+                    // requested seat is already booked , suggesting available tickes
                     $suggested_tickets = $this->getSuggested_tickets($data);
                     return response()->json(['response' => ['code' => '200', 'message' => 'Requested tickets are not available, Here are some suggested seats.','seats'=>$suggested_tickets]]);
                 }else{
                     // check adjacent seats available or not
-                    if(($column_arr[$col_name] - ($data['ticket_count']-1) < 0) || $column_arr[$col_name] + ($data['ticket_count']-1) > 20){
+                    if(($column_arr[$col_name] - ($data['ticket_count']-1) < 0) && $column_arr[$col_name] + ($data['ticket_count']-1) > 20){
                         $suggested_tickets = $this->getSuggested_tickets($data);
                         return response()->json(['response' => ['code' => '200', 'message' => 'Requested tickets are not available, Here are some suggested seats.','seats'=>$suggested_tickets]]);
                     }
@@ -104,7 +105,6 @@ class TicketController extends Controller
                 foreach($query as $key => $value){
                     
                     // checking whether on this row any adjacent seats available or not
-                    // return $value;
                     $ticket_counter = 0;
                     $tickets = [];
                     foreach($value as $tkey => $tval){
@@ -122,16 +122,16 @@ class TicketController extends Controller
                         }
                     }
                 }
-                return false;
+                return [];
             }else{
-                return false;
+                return [];
             }
         }catch(\Exception $e){
             Log::error(
                 'Internal server error',
                 ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]
             );
-            return false;
+            return [];
         }
     }
 }
