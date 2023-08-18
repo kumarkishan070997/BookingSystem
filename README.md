@@ -1,4 +1,4 @@
-# SEAT BOOKING SYSTEM #
+# SEAT BOOKING SYSTEM - TASK 2#
 
 # ABOUT : I have created a api endpoint where you need to pass user selected seat no. and no. of tickets you want to buy, then system will return you the available ticket.
 
